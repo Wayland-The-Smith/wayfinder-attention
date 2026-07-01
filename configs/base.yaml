@@ -1,0 +1,132 @@
+# Shared defaults for all RoutingAttention experiments
+# Dataset: MNIST flattened to 784-pixel autoregressive sequences (official train/test split).
+
+# Training is step-based (no epochs). Defaults: transformer 10_000 steps, router 4_000 steps.
+
+seed: 42
+device: cuda  # falls back to cpu if unavailable
+
+dry_run:
+  max_steps: 40
+
+training:
+  use_amp: true
+  tf32: true
+  cudnn_benchmark: true
+  matmul_precision: high
+  torch_compile: false
+
+validation:
+  enabled: true
+  eval_every: 1000
+  max_batches: 1
+  # Holdout recall during router training (subsample of MNIST test cache)
+  eval_max_samples: 64
+
+model:
+  vocab_size: 257
+  num_digit_classes: 10
+  d_model: 256
+  n_layers: 6
+  n_heads: 4
+  d_ff: 1024
+  dropout: 0.1
+  max_seq_len: 784
+  pad_token_id: 0
+
+data:
+  dataset: mnist
+  seq_len: 784
+  batch_size: 32
+  eval_split: test
+  gpu_resident: true
+  gpu_generate: true
+  cuda_prefetch: true
+  num_workers: 2
+  prefetch_factor: 4
+  pin_memory: true
+
+transformer:
+  max_steps: 10000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  digit_loss_weight: 1.0
+  eval_every: 0
+  save_every: 5000
+  warmup_steps: 500
+
+learned_address:
+  address_dim: 32
+  similarity: asymmetric
+  normalize: true
+
+router:
+  mode: per_layer
+  similarity: symmetric
+  per_head_routing: false
+  routing_dim: 32
+  hidden_dim: 64
+  top_k: 32
+  local_window: 16
+  loss_type: infonce
+  temperature: 0.07
+  max_steps: 4000
+  lr: 1.0e-3
+  eval_every: 1000
+  save_every: 4000
+  batch_size: 16
+  num_negatives: 64
+
+data_collection:
+  layer_idx: -1
+  max_batches: 256
+  train_max_batches: 256
+  holdout_max_batches: 32
+  batch_size: 32
+  all_layers: true
+  per_head: false
+  attention_supervision: head_avg
+  cache_dtype: float16
+
+routing_attention:
+  fair_finetune: true
+  max_steps: 10000
+  lr: 3.0e-4
+  eval_every: 0
+  save_every: 5000
+  freeze_router: true
+  routing_aux_weight: 0.0
+  routing_aux_loss_type: infonce
+  routing_aux_layer: -1
+  aux_hidden_source: student
+  aux_attention_source: teacher
+
+retrieval:
+  method: auto  # CUDA + Triton → fused_causal; else brute_force / streaming
+  oversample: 4
+  dtype: float16
+  brute_force_max_seq: 2048
+  faiss_flat_max_seq: 16384
+  hnsw_m: 32
+  hnsw_ef_search: 64
+  use_gpu: true
+  # Key-vector: false = inline exact top-K (task gates / Exp 4 parity).
+  # Set true in scaling benchmarks to use RoutingRetriever.
+  apply_to_key_vector: false
+  # Layer 3: fused causal top-K + Triton sparse meat attention (Exp 6 scaling).
+  use_fused_sparse: false
+
+evaluation:
+  max_batches: 20
+  recall_k: 32
+  max_eval_samples: 0
+  max_eval_tokens: 0
+  recall_max_batches: 10
+  include_mean_rank: false
+  benchmark_runs: 10
+  benchmark_warmup: 3
+
+reuse:
+  transformer_checkpoint: null
+  router_checkpoint: null
+  attention_cache: null

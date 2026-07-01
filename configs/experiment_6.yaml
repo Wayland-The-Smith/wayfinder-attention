@@ -1,0 +1,22 @@
+# Experiment 6 — fused Triton retrieval + sparse attention scaling
+# Reuses Experiment 4 checkpoints; forward-only longest-first seq sweep.
+
+experiment:
+  name: Experiment_6
+  description: Fused causal top-K (Layer 2) and fused sparse attention (Layer 3) scaling
+
+retrieval:
+  method: fused_causal
+  apply_to_key_vector: true
+  use_fused_sparse: true
+  dtype: float16
+  use_gpu: true
+
+data:
+  batch_size: 1
+  num_workers: 0
+
+evaluation:
+  max_batches: 1
+  benchmark_runs: 10
+  benchmark_warmup: 3

@@ -1,0 +1,50 @@
+# 3-layer dense NIAH ladder — same L2 gate as 2L profile.
+# Run: python run_feasibility_ladder_suite.py --config configs/feasibility_ladder_3L.yaml --levels 2 --no-stop-on-failure --output-dir experiments/Experiment_7/feasibility_ladder_3L
+
+feasibility_ladder:
+  description: "3L fast profile — classic NIAH dense baseline @ T=2048"
+  suite_profile: fast
+  stop_on_failure: false
+  synthetic: true
+
+  dry_run:
+    max_steps: 50
+    validate_every: 10
+    log_every: 10
+    eval_samples_per_cell: 1
+    mid_train_samples_per_cell: 1
+    data:
+      batch_size: 1
+
+  levels:
+    - level: 2
+      name: classic_niah_3L
+      description: "3L dense baseline: T=2048, classic NIAH, pointer_unique, 0 decoys"
+      train_context_length: 2048
+      save_checkpoint: true
+      model:
+        n_layers: 3
+      pass_criteria:
+        primary_gate_accuracy_min: 0.90
+      long_context_benchmark:
+        context_lengths: [2048]
+        task_types: [pointer_unique]
+        needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+        suffix_placement: at_end
+        scatter_multi_needles: false
+        synthetic_decoy_keys: 0
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 8000
+        dense_pretrain_steps: 8000
+        validate_every: 400
+        validate_every_min: 400
+        log_every: 100
+      dense_calibration:
+        live_metrics: true
+        early_stop: false
+        eval_use_full_holdout: true
+        restore_best_checkpoint: true
+        mid_train_samples_per_cell: 4
+        target_accuracy: 0.90
+

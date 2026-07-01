@@ -1,0 +1,67 @@
+# MQAR addr_val head-to-head @ T=512 — N=8 bunched, query-only, 60k steps, final-checkpoint eval.
+#
+# Compare dense_flash vs linear on identical protocol (from scratch, 300-sample holdout).
+
+routing_arena:
+  description: "mqar_addr_val N=8 @ T=512 — 4L dense vs linear, 60k, final ckpt, dropout parity"
+  train_context_length: 512
+  suite_profile: full
+  n_layers: 4
+
+  variants:
+    - dense_flash
+    - linear
+
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  model:
+    output_head: lm_token
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [512]
+    task_types: [mqar_addr_val]
+    needle_depths: [0.50]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    num_distractors: 0
+    num_kv_pairs: 8
+    num_queries: 1
+    answer_digit_width: 1
+    include_answer_in_suffix: false
+    train_label_mode: query_only_answer
+    benchmark_variant: mqar_addr_val_n8_60k_dropout_parity
+    synthetic_hop_count: 1
+    synthetic_hop_count_min: 1
+    synthetic_hop_count_max: 1
+    training_protocol: two_stage
+
+  transformer:
+    sparse_finetune_steps: 60000
+    validate_every: 5000
+    validate_every_min: 5000
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: false
+    eval_use_full_holdout: false
+
+  dry_run:
+    sparse_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4

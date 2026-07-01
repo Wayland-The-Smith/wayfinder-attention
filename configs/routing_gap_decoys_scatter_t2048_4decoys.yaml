@@ -1,0 +1,53 @@
+# Dense vs linear gate @ T=2048 — addr_val with 4 scattered decoy ADDR rows (2L, 10k).
+
+routing_arena:
+  description: "addr_val 4 decoys scatter @ T=2048 — dense gate then linear (2L, 10k)"
+  train_context_length: 2048
+  suite_profile: full
+  n_layers: 2
+
+  variants:
+    - dense_flash
+    - linear
+
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0.20
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [addr_val]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: true
+    num_distractors: 4
+    synthetic_decoy_addrs: 4
+    answer_digit_width: 2
+    synthetic_conflict_rows: 3
+    synthetic_hop_count: 1
+    synthetic_hop_count_min: 1
+    synthetic_hop_count_max: 1
+    training_protocol: two_stage
+
+  transformer:
+    sparse_finetune_steps: 10000
+    validate_every: 1000
+    validate_every_min: 1000
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false

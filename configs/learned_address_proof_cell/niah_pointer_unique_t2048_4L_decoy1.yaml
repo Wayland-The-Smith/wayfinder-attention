@@ -1,0 +1,108 @@
+# Hard synthetic cell — 1 decoy key @ T=2048 (seed 45, 4L).
+# Same protocol as canonical proof cell; used for Phase 2 hard-cell evaluation.
+
+routing_arena:
+  description: "Learned-address hard cell — 4L T=2048 seed 45 pointer_unique 1 decoy"
+  feasibility_parity: true
+  holdout_mid_seed_offset: 2
+  train_context_length: 2048
+  suite_profile: fast
+  n_layers: 4
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0.0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [pointer_unique]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    synthetic_decoy_keys: 1
+    num_distractors: 1
+    eval_samples_per_cell: 4
+    generation_max_attempts: 16
+    answer_digit_width: 1
+    answer_loss_weight: 8.0
+    train_label_mode: answer_only
+    include_answer_in_suffix: true
+    benchmark_variant: learned_address_hard_cell_t2048_4L_d1
+    synthetic_hop_count: 1
+    synthetic_hop_count_min: 1
+    synthetic_hop_count_max: 1
+    training_protocol: two_stage
+
+  transformer:
+    max_steps: 20000
+    dense_pretrain_steps: 20000
+    sparse_finetune_steps: 20000
+    validate_every: 500
+    validate_every_min: 500
+    log_every: 200
+    lr: 3.0e-4
+    lr_warmup_steps: 500
+
+  seed: 45
+  training:
+    cudnn_deterministic: true
+    cudnn_benchmark: false
+
+  index_pretrain:
+    enabled: true
+    address_index_steps: 10000
+    cache_train_batches: 64
+    cache_holdout_batches: 16
+
+  key_vector:
+    top_k: 128
+    sparse_finetune_steps: 20000
+    sparse_finetune_lr: 3.0e-4
+
+  learned_address:
+    address_dim: 32
+    similarity: asymmetric
+    address_index_steps: 10000
+    joint_finetune_steps: 20000
+    joint_finetune_lr: 3.0e-4
+
+  router:
+    top_k: 128
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+    freeze_addresses: false
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: true
+    mid_train_samples_per_cell: 4
+    target_accuracy: 0.50
+
+  proof_cell:
+    recall_k: 128
+    phase_b_recall_min: 0.0
+    phase_c_dense_gap_pp: 10.0
+    block_on_recall_gate: false
+    block_on_upstream_gates: false
+
+  dry_run:
+    max_steps: 80
+    dense_pretrain_steps: 80
+    sparse_finetune_steps: 80
+    address_index_steps: 50
+    joint_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4
+    dry_run_cache_train_batches: 4
+    dry_run_cache_holdout_batches: 2

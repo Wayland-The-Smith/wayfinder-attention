@@ -1,0 +1,31 @@
+# Experiment 2: Long-range vs local attention recovery (MNIST)
+
+experiment:
+  name: Experiment_2
+  description: "Stratify Recall@K by pixel distance on MNIST. Retrains router per target layer."
+  retrain_router: true
+
+variants:
+  default:
+    evaluation:
+      recall_k: 32
+    data_collection:
+      layer_idx: -1
+  k64:
+    evaluation:
+      recall_k: 64
+  last_layer:
+    data_collection:
+      layer_idx: -1
+  mid_layer:
+    data_collection:
+      layer_idx: 2
+    reuse:
+      router_checkpoint: null
+
+reuse:
+  transformer_checkpoint: latest:Experiment_1
+  attention_cache: latest:Experiment_1
+
+router:
+  mode: single

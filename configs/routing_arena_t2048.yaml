@@ -1,0 +1,148 @@
+# Routing attention arena @ T=2048 — classic NIAH (pointer_unique, at_end).
+
+# Used by run_routing_arena_suite.py (dense baseline + routing variants).
+
+
+
+routing_arena:
+
+  description: "Fair dense vs key-vector vs learned-address head-to-head @ T=2048 pointer_unique"
+
+  train_context_length: 2048
+
+  suite_profile: full
+
+  n_layers: 6
+
+  variants:
+    - dense_flash
+    - key_vector_k32
+    - learned_address_k32
+    - linear
+    - local_window64
+    - local_window256
+
+
+
+  # Standardized holdout: 300 samples official eval; smaller stratified subset mid-train.
+
+  holdout:
+
+    total_samples: 300
+
+    mid_train_samples_per_cell: 10
+
+
+
+  # Dense reference: warm-start sparse variants from a passed L2 gate checkpoint.
+
+  dense_checkpoint: null  # null → auto-resolve level2_T2048_dense_flash.pt
+
+
+
+  long_context_benchmark:
+
+    benchmark_family: synthetic
+
+    context_lengths: [2048]
+
+    task_types: [pointer_unique]
+
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+
+    suffix_placement: at_end
+
+    scatter_multi_needles: false
+
+    synthetic_decoy_keys: 0
+
+    training_protocol: two_stage
+
+
+
+  # Stage A.5b — address index from dense teacher (learned_address_k32 only).
+
+  index_pretrain:
+
+    enabled: true
+
+    address_index_steps: 2000
+
+    cache_train_batches: 32
+
+    cache_holdout_batches: 8
+
+
+
+  # Stage B — sparse top-k LM fine-tune from dense trunk.
+
+  transformer:
+
+    sparse_finetune_steps: 5000
+
+    validate_every: 500
+
+    validate_every_min: 500
+
+    log_every: 100
+
+    lr: 3.0e-4
+
+
+
+  # key_vector_k32: Stage B only — no index pretrain; retrieval is head-mean Q/K top-k.
+
+  key_vector:
+
+    sparse_finetune_steps: 5000
+
+    sparse_finetune_lr: 3.0e-4
+
+
+
+  # learned_address_k32: Stage A.5b address index (InfoNCE) + Stage B joint finetune.
+
+  learned_address:
+
+    address_index_steps: 2000
+
+    joint_finetune_steps: 5000
+
+    joint_finetune_lr: 3.0e-4
+
+
+
+  routing_attention:
+
+    fair_finetune: true
+
+
+
+  dense_calibration:
+
+    live_metrics: true
+
+    early_stop: false
+
+    restore_best_checkpoint: true
+
+    eval_use_full_holdout: false
+
+
+
+  dry_run:
+
+    sparse_finetune_steps: 40
+
+    address_index_steps: 50
+
+    joint_finetune_steps: 40
+
+    validate_every: 10
+
+    log_every: 10
+
+    mid_train_samples_per_cell: 4
+
+    skip_index_cache_refresh: false
+

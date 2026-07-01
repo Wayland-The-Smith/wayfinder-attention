@@ -1,0 +1,32 @@
+# Experiment 3: Compare routing loss functions (MNIST)
+
+experiment:
+  name: Experiment_3
+  description: "Compare InfoNCE, sampled InfoNCE, MSE, KL loss functions on MNIST caches."
+
+variants:
+  infonce:
+    router:
+      loss_type: infonce
+      mode: single
+  infonce_sampled:
+    router:
+      loss_type: infonce_sampled
+      mode: single
+  mse:
+    router:
+      loss_type: mse
+      mode: single
+  kl:
+    router:
+      loss_type: kl
+      mode: single
+      temperature: 0.5
+
+reuse:
+  transformer_checkpoint: latest:Experiment_1
+  attention_cache: latest:Experiment_1
+
+data_collection:
+  all_layers: false
+  layer_idx: -1

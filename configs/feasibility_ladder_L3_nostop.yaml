@@ -1,0 +1,48 @@
+# 6L L3 full gate @ T=8192 — no early stop (curriculum needs full budget).
+# Run: python run_feasibility_ladder_suite.py --config configs/feasibility_ladder_L3_nostop.yaml --levels 3 --no-stop-on-failure
+
+feasibility_ladder:
+  description: "6L L3 full gate @ T=8192, warm-start L2, no early stop"
+  suite_profile: full
+  stop_on_failure: false
+  synthetic: true
+
+  levels:
+    - level: 3
+      name: full_gate
+      description: "T=8192, all L0–L4 synthetic tasks, classic NIAH, context curriculum"
+      train_context_length: 8192
+      save_checkpoint: true
+      requires_level: 2
+      pass_criteria:
+        primary_gate_accuracy_min: 0.70
+      long_context_benchmark:
+        context_lengths: [8192]
+        task_types:
+          - pointer_unique
+          - pointer_active
+          - addr_val
+          - addr_val_active
+          - ptr_chain
+        needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+        suffix_placement: at_end
+        scatter_multi_needles: false
+        context_curriculum:
+          - {until_step: 2000, context_length: 512}
+          - {until_step: 5000, context_length: 2048}
+          - {until_step: 50000, context_length: 8192}
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 50000
+        dense_pretrain_steps: 50000
+        validate_every: 2000
+        validate_every_min: 2000
+        log_every: 500
+      dense_calibration:
+        live_metrics: true
+        early_stop: false
+        eval_use_full_holdout: true
+        restore_best_checkpoint: true
+        mid_train_samples_per_cell: 4
+        target_accuracy: 0.70
+

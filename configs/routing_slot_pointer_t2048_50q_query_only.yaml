@@ -1,0 +1,65 @@
+# slot_pointer @ T=2048 — 50 random quads, query-only value token (lm_token, no pointer_mlp).
+#
+# Input @ T-1: queried address token. Supervision @ T-1: matching value token id.
+# Trunk must retrieve addr→value binding; no pointer/slot classification head.
+
+routing_arena:
+  description: "slot_pointer random 50q — query-only value token (lm_token)"
+  train_context_length: 2048
+  suite_profile: full
+  n_layers: 4
+
+  model:
+    output_head: lm_token
+    vocab_size: 129
+
+  variants:
+    - dense_flash
+
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    benchmark_variant: slot_pointer_query_only_t2048
+    context_lengths: [2048]
+    task_types: [slot_pointer]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    slot_quad_placement: random
+    num_distractors: 0
+    num_slot_quads: 50
+    train_label_mode: query_only_answer
+    training_protocol: two_stage
+
+  transformer:
+    sparse_finetune_steps: 50000
+    dense_pretrain_steps: 50000
+    validate_every: 2500
+    validate_every_min: 2500
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+
+  dry_run:
+    sparse_finetune_steps: 40
+    validate_every: 10
+    validate_every_min: 10
+    log_every: 10
+    mid_train_samples_per_cell: 4

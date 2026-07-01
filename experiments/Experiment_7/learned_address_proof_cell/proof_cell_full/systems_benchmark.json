@@ -1,0 +1,102 @@
+{
+  "dry_run": false,
+  "timestamp": "2026-06-21T22:06:17.668306+00:00",
+  "rows": [
+    {
+      "variant": "dense_flash",
+      "context_length": 2048,
+      "latency_ms": 6.246840604580939,
+      "tokens_per_sec": 327845.72708613036,
+      "peak_vram_mb": 209.3486328125,
+      "error": null
+    },
+    {
+      "variant": "key_vector_k32",
+      "context_length": 2048,
+      "latency_ms": 13.487065234221518,
+      "tokens_per_sec": 151849.19509423667,
+      "peak_vram_mb": 515.099609375,
+      "error": null
+    },
+    {
+      "variant": "learned_address_k32",
+      "context_length": 2048,
+      "latency_ms": 13.802904775366187,
+      "tokens_per_sec": 148374.56559542677,
+      "peak_vram_mb": 652.1767578125,
+      "error": null
+    },
+    {
+      "variant": "dense_flash",
+      "context_length": 4096,
+      "latency_ms": 7.696020998992026,
+      "tokens_per_sec": 532223.0800223215,
+      "peak_vram_mb": 477.3818359375,
+      "error": null
+    },
+    {
+      "variant": "key_vector_k32",
+      "context_length": 4096,
+      "latency_ms": 30.206061573699117,
+      "tokens_per_sec": 135601.9218197731,
+      "peak_vram_mb": 664.8828125,
+      "error": null
+    },
+    {
+      "variant": "learned_address_k32",
+      "context_length": 4096,
+      "latency_ms": 27.47440659441054,
+      "tokens_per_sec": 149084.2026350917,
+      "peak_vram_mb": 664.13671875,
+      "error": null
+    },
+    {
+      "variant": "dense_flash",
+      "context_length": 8192,
+      "latency_ms": 27.272383403033018,
+      "tokens_per_sec": 300377.12065491686,
+      "peak_vram_mb": 1517.4482421875,
+      "error": null
+    },
+    {
+      "variant": "key_vector_k32",
+      "context_length": 8192,
+      "latency_ms": 20.71770178154111,
+      "tokens_per_sec": 395410.6534779279,
+      "peak_vram_mb": 964.44921875,
+      "error": null
+    },
+    {
+      "variant": "learned_address_k32",
+      "context_length": 8192,
+      "latency_ms": 19.82603040523827,
+      "tokens_per_sec": 413194.1610376819,
+      "peak_vram_mb": 962.703125,
+      "error": null
+    },
+    {
+      "variant": "dense_flash",
+      "context_length": 16384,
+      "latency_ms": 84.32646200526506,
+      "tokens_per_sec": 194292.51044561836,
+      "peak_vram_mb": 5613.5810546875,
+      "error": null
+    },
+    {
+      "variant": "key_vector_k32",
+      "context_length": 16384,
+      "latency_ms": 37.64282283373177,
+      "tokens_per_sec": 435248.97355249035,
+      "peak_vram_mb": 2331.58203125,
+      "error": null
+    },
+    {
+      "variant": "learned_address_k32",
+      "context_length": 16384,
+      "latency_ms": 38.34772240370512,
+      "tokens_per_sec": 427248.32070905453,
+      "peak_vram_mb": 2327.8359375,
+      "error": null
+    }
+  ]
+}

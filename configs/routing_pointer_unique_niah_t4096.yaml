@@ -1,0 +1,59 @@
+# pointer_unique NIAH @ T=4096 — scattered needle + decoys, dense vs linear gap probe.
+#
+# Dry-run:  python run_niah_gap_calibration_suite.py --experiment pointer_unique --dry-run
+# Full run: python run_niah_gap_calibration_suite.py --experiment pointer_unique
+
+routing_arena:
+  description: "pointer_unique NIAH scatter @ T=4096 — dense vs linear (4L)"
+  train_context_length: 4096
+  suite_profile: full
+  n_layers: 4
+
+  variants:
+    - dense_flash
+    - linear
+
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [4096]
+    task_types: [pointer_unique]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: true
+    num_distractors: 4
+    synthetic_decoy_keys: 4
+    answer_loss_weight: 8.0
+    benchmark_variant: pointer_unique_niah_t4096_scatter
+    training_protocol: two_stage
+
+  transformer:
+    sparse_finetune_steps: 40000
+    validate_every: 4000
+    validate_every_min: 4000
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+
+  dry_run:
+    sparse_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4

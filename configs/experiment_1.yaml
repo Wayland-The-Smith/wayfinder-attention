@@ -1,0 +1,229 @@
+# Experiment 1: Can routing reconstruct attention neighborhoods? (MNIST pixel LM)
+
+
+
+experiment:
+
+  name: Experiment_1
+
+  description: "Train frozen MNIST pixel-LM transformer, then per-layer RouterMLP. Measure Recall@K on held-out test images."
+
+
+
+# Reuse run_025 transformer + attention caches by default (skip Phase A/B when compatible).
+
+reuse:
+
+  baseline_run: Experiment_1/run_025
+
+  transformer_checkpoint: Experiment_1/run_025/checkpoints/transformer/final.pt
+
+  attention_cache_train: Experiment_1/run_025/data_cache/attention_cache_train_all_layers
+
+  attention_cache_holdout: Experiment_1/run_025/data_cache/attention_cache_holdout_all_layers
+
+  router_checkpoint: null
+
+  address_checkpoint: null
+
+
+
+variants:
+
+  learned_address:
+
+    experiment:
+
+      eval_mode: learned_address
+
+      train_learned_addresses: true
+
+    learned_address:
+
+      address_dim: 32
+
+      similarity: asymmetric
+
+      normalize: true
+
+  default:
+
+    router:
+
+      mode: per_layer
+
+      loss_type: infonce
+
+      top_k: 32
+
+      routing_dim: 32
+
+  infonce_sampled:
+
+    router:
+
+      loss_type: infonce_sampled
+
+  k64:
+
+    router:
+
+      top_k: 64
+
+    evaluation:
+
+      recall_k: 64
+
+  dim16:
+
+    router:
+
+      routing_dim: 16
+
+      hidden_dim: 32
+
+  dim64:
+
+    router:
+
+      routing_dim: 64
+
+      hidden_dim: 128
+
+  mse_baseline:
+
+    router:
+
+      loss_type: mse
+
+      mode: single
+
+    data_collection:
+
+      all_layers: true
+
+      layer_idx: -1
+
+  kl_baseline:
+
+    router:
+
+      loss_type: kl
+
+      mode: single
+
+    data_collection:
+
+      all_layers: true
+
+      layer_idx: -1
+
+  multi_scale:
+
+    router:
+
+      mode: multi_scale
+
+      loss_type: infonce
+
+    data_collection:
+
+      all_layers: false
+
+      layer_idx: -1
+
+  per_head_supervision:
+
+    data_collection:
+
+      per_head: true
+
+      attention_supervision: per_head
+
+      batch_size: 4
+
+      train_max_batches: 32
+
+      holdout_max_batches: 16
+
+  asymmetric:
+
+    router:
+
+      similarity: asymmetric
+
+  per_head_routing:
+
+    router:
+
+      per_head_routing: true
+
+    data_collection:
+
+      per_head: true
+
+      attention_supervision: per_head
+
+  router_8k_steps:
+
+    router:
+
+      max_steps: 8000
+
+  train_k64_eval_k32:
+
+    router:
+
+      top_k: 64
+
+    evaluation:
+
+      recall_k: 32
+
+  eval_last_layer_only:
+
+    evaluation:
+
+      eval_layers: [-1]
+
+  key_vector_baseline:
+
+    experiment:
+
+      skip_router_training: true
+
+      eval_mode: key_vector
+
+  joint_aux_light:
+
+    experiment:
+
+      phase_a2_joint_aux: true
+
+      phase_a2_steps: 2000
+
+      skip_router_training: true
+
+    routing_attention:
+
+      routing_aux_weight: 0.1
+
+      routing_aux_layer: -1
+
+      aux_hidden_source: student
+
+
+
+success_criteria:
+
+  recall_at_32:
+
+    dead: 0.20
+
+    interesting: 0.50
+
+    strong: 0.80
+
+    breakthrough: 0.90
+
+

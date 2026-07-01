@@ -1,0 +1,169 @@
+# =============================================================================
+# Wayfinder Attention — release .gitignore
+# =============================================================================
+#
+# TRACK (source of truth for GitHub):
+#   - routing_attention/          core library
+#   - configs/                    experiment YAML
+#   - scripts/, run_*.py          orchestration + verification
+#   - experiments/experiment_*.py legacy experiment entrypoints (code only)
+#   - wayfinder_attention_paper_v0_4.tex
+#   - paper_figures/*.png         paper figures (~1 MB; regenerable via script)
+#   - requirements.txt
+#   - Canonical result summaries (whitelisted below):
+#       experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/
+#         manifest.json, phase_b.json, phase_c/*/latest.json, systems_benchmark.json
+#       experiments/Experiment_7/learned_address_breakthrough/results_table_full.json
+#
+# DO NOT TRACK (regenerate locally or host on Zenodo):
+#   - MNIST under data/ (~55 MB; torchvision auto-downloads)
+#   - Model checkpoints (*.pt), attention caches, tensorboard, plots
+#   - Numbered run dirs (run_001 … run_186) and all other suite output trees
+#   - Dry-run artifacts, logs, ephemeral *_full_latest.json manifests
+#
+# =============================================================================
+
+# --- Python / packaging ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.Python
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / type / lint caches
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Datasets (torchvision downloads MNIST to data/mnist on first use) ---
+data/
+
+# --- Model weights & large binary artifacts ---
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.h5
+*.npy
+*.npz
+
+# HuggingFace / hub caches if used
+.cache/
+hf_cache/
+
+# --- Experiment outputs: numbered legacy runs ---
+# ExperimentRunner creates experiments/Experiment_N/run_XXX/ with checkpoints,
+# tensorboard, plots, stats, and data_cache. These routinely reach GB each.
+experiments/**/run_[0-9]*/
+Experiments/**/run_[0-9]*/
+
+# --- Experiment outputs: suite directories ---
+# Named output trees from run_*_suite.py (routing_arena_*, gap_*, feasibility_*, etc.)
+experiments/**/suite_*/
+Experiments/**/suite_*/
+
+# --- Training/runtime artifacts (any experiment tree) ---
+experiments/**/checkpoints/
+Experiments/**/checkpoints/
+experiments/**/tensorboard/
+Experiments/**/tensorboard/
+experiments/**/plots/
+Experiments/**/plots/
+experiments/**/data_cache/
+Experiments/**/data_cache/
+experiments/**/index_checkpoints/
+Experiments/**/index_checkpoints/
+experiments/**/stats/
+Experiments/**/stats/
+experiments/**/*_address_cache_*/
+Experiments/**/*_address_cache_*/
+
+# Dry-run / smoke outputs (software validation only, not paper evidence)
+experiments/**/*_dry/
+Experiments/**/*_dry/
+experiments/**/*_dry.json
+Experiments/**/*_dry.json
+experiments/**/*dry_run*/
+Experiments/**/*dry_run*/
+experiments/**/smoke/
+Experiments/**/smoke/
+experiments/**/smoke_*/
+Experiments/**/smoke_*/
+
+# Logs
+*.log
+experiments/**/suite_*.log
+Experiments/**/suite_*.log
+
+# Ephemeral suite-level manifest copies (NOT phase_c/*/latest.json)
+experiments/**/proof_cell_*_latest.json
+Experiments/**/proof_cell_*_latest.json
+experiments/**/sweep_*_latest.json
+Experiments/**/sweep_*_latest.json
+experiments/**/curriculum_*_latest.json
+Experiments/**/curriculum_*_latest.json
+
+# Generated plots inside experiment trees (paper figures live in paper_figures/)
+experiments/**/*.png
+Experiments/**/*.png
+experiments/**/*.pdf
+Experiments/**/*.pdf
+experiments/**/*.svg
+Experiments/**/*.svg
+
+# --- Whitelist: paper-canonical JSON summaries only ---
+# Ignore all Experiment_N artifact trees, then re-allow the small proof-cell bundle.
+experiments/Experiment_*/
+Experiments/Experiment_*/
+!experiments/Experiment_7/
+!Experiments/Experiment_7/
+experiments/Experiment_7/*
+Experiments/Experiment_7/*
+!experiments/Experiment_7/learned_address_proof_cell/
+!Experiments/Experiment_7/learned_address_proof_cell/
+experiments/Experiment_7/learned_address_proof_cell/*
+Experiments/Experiment_7/learned_address_proof_cell/*
+!experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/
+!Experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/
+!experiments/Experiment_7/learned_address_breakthrough/
+!Experiments/Experiment_7/learned_address_breakthrough/
+experiments/Experiment_7/learned_address_breakthrough/*
+Experiments/Experiment_7/learned_address_breakthrough/*
+!experiments/Experiment_7/learned_address_breakthrough/results_table_full.json
+!Experiments/Experiment_7/learned_address_breakthrough/results_table_full.json
+
+# --- LaTeX build debris ---
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~

@@ -1,0 +1,78 @@
+# ptr_chain @ T=2048 — gentler hop/distractor curriculum, dense-only probe.
+#
+# Training ramps difficulty; official holdout always uses final target (2 hops, 2 distractors).
+#
+# hop_count semantics (addresses in chain, terminal included):
+#   1 = direct ADDR VAL (0 PTR hops)
+#   2 = ADDR PTR ADDR VAL (1 PTR hop)
+
+routing_arena:
+  description: "ptr_chain curriculum @ T=2048 — dense_flash 50k steps"
+  train_context_length: 2048
+  suite_profile: full
+  n_layers: 6
+
+  variants:
+    - dense_flash
+
+  dense_finetune_on_task: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [ptr_chain]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: true
+    scatter_placement_min: 0
+    scatter_placement_max: null
+    # Final holdout / eval target difficulty:
+    num_distractors: 2
+    synthetic_hop_count: 2
+    synthetic_hop_count_min: 2
+    synthetic_hop_count_max: 2
+    synthetic_decoy_addrs: 2
+    synthetic_fake_ptrs: 0
+    training_protocol: two_stage
+    synthetic_task_curriculum:
+      - until_step: 5000
+        synthetic_hop_count: 1
+        num_distractors: 0
+      - until_step: 10000
+        synthetic_hop_count: 1
+        num_distractors: 1
+      - until_step: 30000
+        synthetic_hop_count: 2
+        num_distractors: 1
+      - until_step: 50000
+        synthetic_hop_count: 2
+        num_distractors: 2
+
+  transformer:
+    sparse_finetune_steps: 50000
+    validate_every: 2500
+    validate_every_min: 2500
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+
+  dry_run:
+    sparse_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4

@@ -1,0 +1,196 @@
+# NIAH feasibility ladder — prove dense retrieval before variant comparison.
+# Run: python run_feasibility_ladder_suite.py
+# Dry-run: python run_feasibility_ladder_suite.py --dry-run
+
+feasibility_ladder:
+  description: "Sequential L0–L4: stack → local sanity → classic NIAH dense baseline → full gate → variants"
+  suite_profile: full
+  stop_on_failure: true
+  synthetic: true
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dry_run:
+    max_steps: 50
+    validate_every: 10
+    log_every: 10
+    eval_samples_per_cell: 1
+    mid_train_samples_per_cell: 1
+    level4_variants: [dense_flash, linear, local_window64]
+    level4_max_steps: 30
+    skip_index_pretrain: true
+    data:
+      batch_size: 1
+
+  levels:
+    - level: 0
+      name: stack_smoke
+      description: "T=512, suffix after needle, L0 only, overfit 32 samples"
+      train_context_length: 512
+      save_checkpoint: false
+      pass_criteria:
+        primary_gate_accuracy_min: 0.90
+      long_context_benchmark:
+        context_lengths: [512]
+        task_types: [pointer_unique]
+        needle_depths: [0.50]
+        haystack_modes: [synthetic_noise]
+        suffix_placement: after_needles
+        suffix_after_needles_gap_max: 8
+        suffix_depth_min: 0.10
+        suffix_depth_max: 0.90
+        scatter_multi_needles: false
+        synthetic_decoy_keys: 0
+        min_haystack_side_chars: 8
+        overfit_train_samples: 32
+        overfit_eval_same_samples: true
+        eval_samples_per_cell: 4
+        train_task_sampling: balanced
+      transformer:
+        max_steps: 800
+        dense_pretrain_steps: 800
+        validate_every: 50
+        validate_every_min: 50
+        log_every: 50
+      dense_calibration:
+        live_metrics: true
+        early_stop: false
+        mid_train_samples_per_cell: 2
+        target_accuracy: 0.90
+
+    - level: 1
+      name: distance_isolated
+      description: "L1a: T=2048, pointer_unique, suffix after needles — local retrieval sanity"
+      train_context_length: 2048
+      save_checkpoint: false
+      pass_criteria:
+        primary_gate_accuracy_min: 0.90
+      long_context_benchmark:
+        context_lengths: [2048]
+        task_types: [pointer_unique]
+        needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+        suffix_placement: after_needles
+        suffix_after_needles_gap_max: 16
+        scatter_multi_needles: false
+        synthetic_decoy_keys: 0
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 6000
+        dense_pretrain_steps: 6000
+        validate_every: 300
+        validate_every_min: 300
+        log_every: 100
+      dense_calibration:
+        live_metrics: true
+        early_stop: true
+        patience_checks: 4
+        min_delta_pp: 0.005
+        mid_train_samples_per_cell: 2
+        target_accuracy: 0.90
+
+    - level: 2
+      name: classic_niah
+      description: "Dense baseline gate: T=2048, classic NIAH (query at end), pointer_unique, 0 decoys"
+      train_context_length: 2048
+      save_checkpoint: true
+      pass_criteria:
+        primary_gate_accuracy_min: 0.90
+      long_context_benchmark:
+        context_lengths: [2048]
+        task_types: [pointer_unique]
+        needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+        suffix_placement: at_end
+        scatter_multi_needles: false
+        synthetic_decoy_keys: 0
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 8000
+        dense_pretrain_steps: 8000
+        validate_every: 400
+        validate_every_min: 400
+        log_every: 100
+      dense_calibration:
+        live_metrics: true
+        early_stop: false
+        patience_checks: 4
+        min_delta_pp: 0.005
+        eval_use_full_holdout: true
+        restore_best_checkpoint: true
+        mid_train_samples_per_cell: 4
+        target_accuracy: 0.90
+
+    - level: 3
+      name: full_gate
+      description: "T=8192, all L0–L4 synthetic tasks, classic NIAH (query at end), context curriculum"
+      train_context_length: 8192
+      save_checkpoint: true
+      requires_level: 2
+      pass_criteria:
+        primary_gate_accuracy_min: 0.70
+      long_context_benchmark:
+        context_lengths: [8192]
+        task_types:
+          - pointer_unique
+          - pointer_active
+          - addr_val
+          - addr_val_active
+          - ptr_chain
+        needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+        suffix_placement: at_end
+        scatter_multi_needles: false
+        context_curriculum:
+          - {until_step: 2000, context_length: 512}
+          - {until_step: 5000, context_length: 2048}
+          - {until_step: 50000, context_length: 8192}
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 50000
+        dense_pretrain_steps: 50000
+        validate_every: 1000
+        validate_every_min: 1000
+        log_every: 500
+      dense_calibration:
+        live_metrics: true
+        early_stop: true
+        patience_checks: 5
+        eval_use_full_holdout: true
+        restore_best_checkpoint: true
+        mid_train_samples_per_cell: 4
+        target_accuracy: 0.70
+
+    - level: 4
+      name: variant_breakthrough
+      description: "Fair variant comparison at T=8192 (requires Level 3 checkpoint)"
+      train_context_length: 8192
+      requires_level: 3
+      pass_criteria:
+        note: "Informational — routing should beat local_window64 on primary gate"
+      variants:
+        - dense_flash
+        - linear
+        - local_window64
+        - local_window256
+        - routing_asymmetric
+        - learned_address_k32
+        - key_vector_k32
+      long_context_benchmark:
+        context_lengths: [8192]
+        task_types:
+          - pointer_unique
+          - pointer_active
+          - addr_val
+          - addr_val_active
+          - ptr_chain
+        suffix_placement: at_end
+        eval_samples_per_cell: 4
+      transformer:
+        max_steps: 5000
+        dense_pretrain_steps: 5000
+        sparse_finetune_steps: 5000
+        validate_every: 0
+        log_every: 500
+      index_pretrain:
+        enabled: true
+        router_max_steps: 2000

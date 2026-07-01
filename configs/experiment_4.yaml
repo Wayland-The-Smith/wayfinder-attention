@@ -1,0 +1,92 @@
+# Experiment 4: Controlled head-to-head attention comparison (MNIST pixel LM)
+
+experiment:
+  name: Experiment_4
+  description: "Fair comparison: dense vs routing vs local vs key-vector on MNIST with equal fine-tuning."
+
+variants:
+  routing_asymmetric:
+    router:
+      top_k: 32
+      similarity: asymmetric
+      mode: per_layer
+    reuse:
+      router_checkpoint: Experiment_1/run_052/checkpoints/router/best.pt
+    routing_attention:
+      freeze_router: true
+  routing:
+    router:
+      top_k: 32
+    routing_attention:
+      freeze_router: true
+  routing_aux_loss:
+    router:
+      top_k: 32
+    routing_attention:
+      freeze_router: false
+      routing_aux_weight: 0.1
+      routing_aux_loss_type: infonce
+      aux_hidden_source: student
+  routing_aux_teacher_hidden:
+    router:
+      top_k: 32
+    routing_attention:
+      freeze_router: false
+      routing_aux_weight: 0.1
+      aux_hidden_source: teacher
+  dense:
+    routing_attention:
+      skip: false
+  dense_flash:
+    model:
+      attention_type: dense_flash
+    routing_attention:
+      skip: false
+  local_window64:
+    model:
+      attention_type: local
+    routing_attention:
+      skip: false
+      local_window: 64
+  local_window256:
+    model:
+      attention_type: local
+    router:
+      local_window: 256
+    routing_attention:
+      skip: false
+      local_window: 256
+  linear:
+    model:
+      attention_type: linear
+  key_vector_k32:
+    model:
+      attention_type: key_vector
+    routing_attention:
+      skip: false
+  learned_address_k32:
+    model:
+      attention_type: learned_address
+    learned_address:
+      address_dim: 32
+      similarity: asymmetric
+    reuse:
+      address_checkpoint: Experiment_1/run_051/checkpoints/addresses/best.pt
+    routing_attention:
+      skip: false
+      freeze_router: true
+      freeze_addresses: true
+
+reuse:
+  transformer_checkpoint: Experiment_1/run_025/checkpoints/transformer/final.pt
+  router_checkpoint: latest:Experiment_1
+  address_checkpoint: latest:Experiment_1
+
+routing_attention:
+  fair_finetune: true
+  lr: 3.0e-4
+  freeze_router: true
+  routing_aux_weight: 0.0
+
+success_criteria:
+  lm_loss_increase_max: 0.05

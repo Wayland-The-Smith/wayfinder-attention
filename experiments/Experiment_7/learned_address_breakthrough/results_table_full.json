@@ -1,0 +1,832 @@
+{
+  "dry_run": false,
+  "claim": "Learned-address sparse attention matches dense retrieval on NIAH, beats key-vector and fixed local sparse, and reduces long-context latency ~2\u00d7 vs dense \u2014 with a 3-phase training protocol (dense teacher \u2192 address index \u2192 sparse finetune).",
+  "quality_rows": [
+    {
+      "experiment": "proof_cell",
+      "variant": "key_vector_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.8133333333333334,
+      "recall_at_k_after_b": null,
+      "recall_at_k_after_c": null,
+      "by_needle_depth": {
+        "0.10049019607843138": 0.8666666666666667,
+        "0.25": 0.9166666666666666,
+        "0.49950980392156863": 1.0,
+        "0.7490196078431373": 0.55,
+        "0.8985294117647059": 0.7333333333333333
+      },
+      "peak_vram_mb": 1791.994140625
+    },
+    {
+      "experiment": "proof_cell",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.593437671661377,
+      "recall_at_k_after_c": 0.593437671661377,
+      "by_needle_depth": {
+        "0.10049019607843138": 1.0,
+        "0.25": 1.0,
+        "0.49950980392156863": 1.0,
+        "0.7490196078431373": 1.0,
+        "0.8985294117647059": 1.0
+      },
+      "peak_vram_mb": 952.701171875
+    },
+    {
+      "experiment": "proof_cell",
+      "variant": "local_window64",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.12333333333333334,
+      "recall_at_k_after_b": null,
+      "recall_at_k_after_c": null,
+      "by_needle_depth": {
+        "0.10049019607843138": 0.13333333333333333,
+        "0.25": 0.11666666666666667,
+        "0.49950980392156863": 0.08333333333333333,
+        "0.7490196078431373": 0.1,
+        "0.8985294117647059": 0.18333333333333332
+      },
+      "peak_vram_mb": 619.0595703125
+    },
+    {
+      "experiment": "proof_cell",
+      "variant": "local_window256",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.36333333333333334,
+      "recall_at_k_after_b": null,
+      "recall_at_k_after_c": null,
+      "by_needle_depth": {
+        "0.10049019607843138": 0.13333333333333333,
+        "0.25": 0.13333333333333333,
+        "0.49950980392156863": 0.05,
+        "0.7490196078431373": 0.5,
+        "0.8985294117647059": 1.0
+      },
+      "peak_vram_mb": 619.0654296875
+    },
+    {
+      "experiment": "proof_cell",
+      "variant": "dense_flash",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.593437671661377,
+      "recall_at_k_after_c": null,
+      "by_needle_depth": {
+        "0.10049019607843138": 1.0,
+        "0.25": 1.0,
+        "0.49950980392156863": 1.0,
+        "0.7490196078431373": 1.0,
+        "0.8985294117647059": 1.0
+      }
+    },
+    {
+      "experiment": "phase1_linear",
+      "variant": "linear",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 1.0,
+      "by_needle_depth": {
+        "0.10049019607843138": 1.0,
+        "0.25": 1.0,
+        "0.49950980392156863": 1.0,
+        "0.7490196078431373": 1.0,
+        "0.8985294117647059": 1.0
+      }
+    },
+    {
+      "experiment": "phase1_sweep",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "b_steps": 2000,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.6245102882385254
+    },
+    {
+      "experiment": "phase1_sweep",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "b_steps": 5000,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.6015408039093018
+    },
+    {
+      "experiment": "phase1_sweep",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "b_steps": 10000,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.5943971872329712
+    },
+    {
+      "experiment": "phase1_sweep",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "b_steps": 20000,
+      "accuracy": 1.0,
+      "recall_at_k_after_b": 0.5822575092315674
+    },
+    {
+      "experiment": "phase1_curriculum",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 1.0,
+      "dense_accuracy": 1.0,
+      "recall_at_k_after_b": 0.5092998743057251
+    },
+    {
+      "experiment": "phase1_curriculum",
+      "variant": "learned_address_k32",
+      "train_t": 4096,
+      "seed": 45,
+      "accuracy": 1.0,
+      "dense_accuracy": 1.0,
+      "recall_at_k_after_b": 0.41312360763549805
+    },
+    {
+      "experiment": "phase1_curriculum",
+      "variant": "learned_address_k32",
+      "train_t": 8192,
+      "seed": 45,
+      "accuracy": null,
+      "dense_accuracy": 1.0,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "linear",
+      "train_t": 2048,
+      "seed": 43,
+      "accuracy": 0.05333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "key_vector_k32",
+      "train_t": 2048,
+      "seed": 43,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 43,
+      "accuracy": 0.10666666666666667,
+      "by_needle_depth": {},
+      "recall_after_c": 0.7656402587890625,
+      "recall_at_k_after_b": 0.7656402587890625
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window64",
+      "train_t": 2048,
+      "seed": 43,
+      "accuracy": 0.1,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window256",
+      "train_t": 2048,
+      "seed": 43,
+      "accuracy": 0.05333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "linear",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "key_vector_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": 0.760162353515625,
+      "recall_at_k_after_b": 0.760162353515625
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window64",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window256",
+      "train_t": 2048,
+      "seed": 45,
+      "accuracy": 0.1,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "linear",
+      "train_t": 2048,
+      "seed": 46,
+      "accuracy": 0.11,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "key_vector_k32",
+      "train_t": 2048,
+      "seed": 46,
+      "accuracy": 0.11666666666666667,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "learned_address_k32",
+      "train_t": 2048,
+      "seed": 46,
+      "accuracy": 0.09666666666666666,
+      "by_needle_depth": {},
+      "recall_after_c": 0.74810791015625,
+      "recall_at_k_after_b": 0.74810791015625
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window64",
+      "train_t": 2048,
+      "seed": 46,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    },
+    {
+      "experiment": "phase2_seed_repro",
+      "variant": "local_window256",
+      "train_t": 2048,
+      "seed": 46,
+      "accuracy": 0.12333333333333334,
+      "by_needle_depth": {},
+      "recall_after_c": null,
+      "recall_at_k_after_b": null
+    }
+  ],
+  "systems_rows": [
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 2048,
+      "latency_ms": 15.629732515662909,
+      "peak_vram_mb": 209.3994140625,
+      "tokens_per_sec": 131032.31280174838,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 2048,
+      "latency_ms": 10.925685986876488,
+      "peak_vram_mb": 139.9736328125,
+      "tokens_per_sec": 187448.1842568035,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 2048,
+      "latency_ms": 19.34988546418026,
+      "peak_vram_mb": 515.150390625,
+      "tokens_per_sec": 105840.41976843616,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 2048,
+      "latency_ms": 23.769368010107428,
+      "peak_vram_mb": 652.2275390625,
+      "tokens_per_sec": 86161.3148119517,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 4096,
+      "latency_ms": 46.88373452518135,
+      "peak_vram_mb": 477.4326171875,
+      "tokens_per_sec": 87365.05403169259,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 4096,
+      "latency_ms": 7.087442034389824,
+      "peak_vram_mb": 169.4326171875,
+      "tokens_per_sec": 577923.597840421,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 4096,
+      "latency_ms": 27.610230026766658,
+      "peak_vram_mb": 664.93359375,
+      "tokens_per_sec": 148350.8104071985,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 4096,
+      "latency_ms": 26.525810011662543,
+      "peak_vram_mb": 664.1875,
+      "tokens_per_sec": 154415.64265894692,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 8192,
+      "latency_ms": 33.854275941848755,
+      "peak_vram_mb": 1517.4990234375,
+      "tokens_per_sec": 241978.2958605093,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 8192,
+      "latency_ms": 10.24967891862616,
+      "peak_vram_mb": 229.4990234375,
+      "tokens_per_sec": 799244.5485402615,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 8192,
+      "latency_ms": 21.42675599316135,
+      "peak_vram_mb": 964.5,
+      "tokens_per_sec": 382325.7240906926,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 8192,
+      "latency_ms": 24.10874149063602,
+      "peak_vram_mb": 962.75390625,
+      "tokens_per_sec": 339793.7633194923,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 16384,
+      "latency_ms": 95.31581896590069,
+      "peak_vram_mb": 5613.6318359375,
+      "tokens_per_sec": 171891.7193153572,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 16384,
+      "latency_ms": 17.952153459191322,
+      "peak_vram_mb": 349.6318359375,
+      "tokens_per_sec": 912648.1698835721,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 16384,
+      "latency_ms": 40.9638385172002,
+      "peak_vram_mb": 2331.6328125,
+      "tokens_per_sec": 399962.51799304807,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 16384,
+      "latency_ms": 40.51796003477648,
+      "peak_vram_mb": 2327.88671875,
+      "tokens_per_sec": 404363.8916159068,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 2048,
+      "latency_ms": 17.470351024530828,
+      "peak_vram_mb": 849.3369140625,
+      "tokens_per_sec": 117227.18090348158,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 2048,
+      "latency_ms": 7.676396216265857,
+      "peak_vram_mb": 779.9111328125,
+      "tokens_per_sec": 266791.856790873,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 2048,
+      "latency_ms": 17.245997791178524,
+      "peak_vram_mb": 1155.087890625,
+      "tokens_per_sec": 118752.18962671846,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 2048,
+      "latency_ms": 19.884321209974587,
+      "peak_vram_mb": 1292.1650390625,
+      "tokens_per_sec": 102995.72101926518,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 4096,
+      "latency_ms": 10.238207574002445,
+      "peak_vram_mb": 1117.3701171875,
+      "tokens_per_sec": 400070.0288985,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 4096,
+      "latency_ms": 8.831111597828567,
+      "peak_vram_mb": 809.3701171875,
+      "tokens_per_sec": 463814.77061247226,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 4096,
+      "latency_ms": 21.460109180770814,
+      "peak_vram_mb": 1304.87109375,
+      "tokens_per_sec": 190865.7577413536,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 4096,
+      "latency_ms": 26.399537385441363,
+      "peak_vram_mb": 1304.125,
+      "tokens_per_sec": 155154.233962404,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 8192,
+      "latency_ms": 30.119817634113133,
+      "peak_vram_mb": 2157.4365234375,
+      "tokens_per_sec": 271980.39840460045,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 8192,
+      "latency_ms": 7.979307416826487,
+      "peak_vram_mb": 869.4365234375,
+      "tokens_per_sec": 1026655.5193405628,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 8192,
+      "latency_ms": 25.679781776852906,
+      "peak_vram_mb": 1604.4375,
+      "tokens_per_sec": 319005.826108073,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 8192,
+      "latency_ms": 22.248588572256267,
+      "peak_vram_mb": 1602.69140625,
+      "tokens_per_sec": 368203.13222993974,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 16384,
+      "latency_ms": 85.6564762070775,
+      "peak_vram_mb": 6253.5693359375,
+      "tokens_per_sec": 191275.6714435825,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "linear",
+      "context_length": 16384,
+      "latency_ms": 14.428253402002156,
+      "peak_vram_mb": 989.5693359375,
+      "tokens_per_sec": 1135549.7816337529,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 16384,
+      "latency_ms": 39.40716600045562,
+      "peak_vram_mb": 2971.5703125,
+      "tokens_per_sec": 415761.9454241031,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 16384,
+      "latency_ms": 38.02062859758735,
+      "peak_vram_mb": 2967.82421875,
+      "tokens_per_sec": 430923.9642881567,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 2048,
+      "latency_ms": 10.585589508991688,
+      "peak_vram_mb": 209.4111328125,
+      "tokens_per_sec": 193470.5665905874,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 2048,
+      "latency_ms": 28.77523598726839,
+      "peak_vram_mb": 515.162109375,
+      "tokens_per_sec": 71172.3094436528,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 2048,
+      "latency_ms": 14.879047987051308,
+      "peak_vram_mb": 652.2392578125,
+      "tokens_per_sec": 137643.21492761496,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 4096,
+      "latency_ms": 8.519522496499121,
+      "peak_vram_mb": 477.4443359375,
+      "tokens_per_sec": 480778.11892428785,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 4096,
+      "latency_ms": 18.345598015002906,
+      "peak_vram_mb": 664.9453125,
+      "tokens_per_sec": 223268.81885509094,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 4096,
+      "latency_ms": 16.52720948914066,
+      "peak_vram_mb": 664.19921875,
+      "tokens_per_sec": 247833.73156196217,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 8192,
+      "latency_ms": 36.34330752538517,
+      "peak_vram_mb": 1517.5107421875,
+      "tokens_per_sec": 225406.0116646794,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 8192,
+      "latency_ms": 21.394261450041085,
+      "peak_vram_mb": 964.51171875,
+      "tokens_per_sec": 382906.4171777833,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 8192,
+      "latency_ms": 18.776697979774326,
+      "peak_vram_mb": 962.765625,
+      "tokens_per_sec": 436285.4432032814,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 16384,
+      "latency_ms": 96.70669899787754,
+      "peak_vram_mb": 5613.6435546875,
+      "tokens_per_sec": 169419.49389007257,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 16384,
+      "latency_ms": 39.59949349518865,
+      "peak_vram_mb": 2331.64453125,
+      "tokens_per_sec": 413742.66572350624,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 16384,
+      "latency_ms": 41.402697504963726,
+      "peak_vram_mb": 2327.8984375,
+      "tokens_per_sec": 395723.0080971352,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 2048,
+      "latency_ms": 6.246840604580939,
+      "peak_vram_mb": 209.3486328125,
+      "tokens_per_sec": 327845.72708613036,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 2048,
+      "latency_ms": 13.487065234221518,
+      "peak_vram_mb": 515.099609375,
+      "tokens_per_sec": 151849.19509423667,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 2048,
+      "latency_ms": 13.802904775366187,
+      "peak_vram_mb": 652.1767578125,
+      "tokens_per_sec": 148374.56559542677,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 4096,
+      "latency_ms": 7.696020998992026,
+      "peak_vram_mb": 477.3818359375,
+      "tokens_per_sec": 532223.0800223215,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 4096,
+      "latency_ms": 30.206061573699117,
+      "peak_vram_mb": 664.8828125,
+      "tokens_per_sec": 135601.9218197731,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 4096,
+      "latency_ms": 27.47440659441054,
+      "peak_vram_mb": 664.13671875,
+      "tokens_per_sec": 149084.2026350917,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 8192,
+      "latency_ms": 27.272383403033018,
+      "peak_vram_mb": 1517.4482421875,
+      "tokens_per_sec": 300377.12065491686,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 8192,
+      "latency_ms": 20.71770178154111,
+      "peak_vram_mb": 964.44921875,
+      "tokens_per_sec": 395410.6534779279,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 8192,
+      "latency_ms": 19.82603040523827,
+      "peak_vram_mb": 962.703125,
+      "tokens_per_sec": 413194.1610376819,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "dense_flash",
+      "context_length": 16384,
+      "latency_ms": 84.32646200526506,
+      "peak_vram_mb": 5613.5810546875,
+      "tokens_per_sec": 194292.51044561836,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "key_vector_k32",
+      "context_length": 16384,
+      "latency_ms": 37.64282283373177,
+      "peak_vram_mb": 2331.58203125,
+      "tokens_per_sec": 435248.97355249035,
+      "error": null
+    },
+    {
+      "experiment": "systems",
+      "variant": "learned_address_k32",
+      "context_length": 16384,
+      "latency_ms": 38.34772240370512,
+      "peak_vram_mb": 2327.8359375,
+      "tokens_per_sec": 427248.32070905453,
+      "error": null
+    }
+  ],
+  "summary": {
+    "proof_cell_learned_address_acc": 1.0,
+    "proof_cell_dense_acc": 1.0,
+    "proof_cell_key_vector_acc": 0.8133333333333334,
+    "proof_cell_local64_acc": 0.12333333333333334,
+    "learned_minus_key_vector_pp": 18.666666666666664,
+    "speedup_vs_dense_at_16k": 2.352433806738822,
+    "breakthrough_quality_parity": true
+  }
+}

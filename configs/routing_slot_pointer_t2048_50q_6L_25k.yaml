@@ -1,0 +1,62 @@
+# Slot-pointer @ T=2048 — 6-layer dense, pointer-index CE, 25k steps.
+
+routing_arena:
+  description: "slot_pointer @ T=2048 — 6L dense, 50 quads, pointer-index CE @ 25k steps"
+  train_context_length: 2048
+  suite_profile: full
+  n_layers: 6
+
+  model:
+    output_head: pointer_mlp
+    pointer_target_mode: value_slots
+    pointer_mlp_hidden: 2100
+    num_pointer_slots: 50
+    vocab_size: 129
+
+  variants:
+    - dense_flash
+
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [slot_pointer]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    num_distractors: 0
+    num_slot_quads: 50
+    training_protocol: two_stage
+
+  transformer:
+    sparse_finetune_steps: 25000
+    dense_pretrain_steps: 25000
+    validate_every: 2500
+    validate_every_min: 2500
+    log_every: 500
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+
+  dry_run:
+    sparse_finetune_steps: 40
+    validate_every: 10
+    validate_every_min: 10
+    log_every: 10
+    mid_train_samples_per_cell: 4

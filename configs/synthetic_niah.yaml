@@ -1,0 +1,39 @@
+# Synthetic pointer / address NIAH benchmark (L0–L4).
+# Use: benchmark_family=synthetic via apply_synthetic_profile() or load this config.
+# Train and holdout share the same five task types; holdout_seed yields unseen samples.
+
+long_context_benchmark:
+  benchmark_family: synthetic
+  benchmark_version: 9
+  context_lengths: [8192, 4096, 2048, 1024]
+  needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+  task_types:
+    - pointer_unique      # L0
+    - pointer_active      # L1
+    - addr_val            # L2
+    - addr_val_active     # L3
+    - ptr_chain           # L4 multi-hop
+  secondary_task_types: []
+  haystack_modes:
+    - synthetic_noise
+  question_prefix: ""
+  answer_prefix: " A "
+  train_label_mode: answer_only
+  train_task_sampling: balanced
+  scatter_multi_needles: true
+  answer_loss_weight: 8.0
+  suffix_depth_min: 0.10
+  suffix_depth_max: 0.90
+  min_haystack_side_chars: 128
+  generation_max_attempts: 16
+  synthetic_hop_count: 2
+  synthetic_hop_count_min: 2
+  synthetic_hop_count_max: 4
+  synthetic_decoy_keys: 5
+  synthetic_decoy_addrs: 4
+  synthetic_fake_ptrs: 2
+  num_distractors: 6
+  vocab_size: 128
+  eval_samples_per_cell: 8
+  seed: 42
+  holdout_seed: 1000042

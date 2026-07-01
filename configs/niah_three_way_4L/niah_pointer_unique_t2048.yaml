@@ -1,0 +1,89 @@
+# 4L three-way NIAH diagnostic — pointer_unique classic @ T=2048.
+# Matches feasibility_ladder_4L_20k (scatter=false, 0 decoys, restore_best).
+#
+# Variants (in order): dense_flash → linear → key_vector_k32 (routing from dense ckpt)
+#
+# Step 1 gate: dense official acc >= 90%
+# Step 2 gate: routing within 5 pp of dense on same holdout
+#
+# Dry-run:  python run_niah_three_way_4L_suite.py --dry-run
+# Full run:  python run_niah_three_way_4L_suite.py
+
+routing_arena:
+  description: "4L three-way NIAH diagnostic — dense + linear + key_vector routing"
+  feasibility_parity: true
+  holdout_mid_seed_offset: 2
+  train_context_length: 2048
+  suite_profile: fast
+  n_layers: 4
+  dense_finetune_on_task: true
+  dense_train_from_scratch: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [pointer_unique]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    synthetic_decoy_keys: 0
+    num_distractors: 0
+    eval_samples_per_cell: 4
+    generation_max_attempts: 16
+    answer_digit_width: 1
+    answer_loss_weight: 8.0
+    train_label_mode: answer_only
+    include_answer_in_suffix: true
+    benchmark_variant: niah_three_way_4L_t2048
+    synthetic_hop_count: 1
+    synthetic_hop_count_min: 1
+    synthetic_hop_count_max: 1
+    training_protocol: two_stage
+
+  transformer:
+    max_steps: 20000
+    dense_pretrain_steps: 20000
+    sparse_finetune_steps: 20000
+    validate_every: 500
+    validate_every_min: 500
+    log_every: 200
+    lr: 3.0e-4
+    lr_warmup_steps: 500
+
+  seed: 45
+  training:
+    cudnn_deterministic: true
+    cudnn_benchmark: false
+
+  key_vector:
+    top_k: 128
+    sparse_finetune_steps: 20000
+    sparse_finetune_lr: 3.0e-4
+
+  router:
+    top_k: 128
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: true
+    mid_train_samples_per_cell: 4
+    target_accuracy: 0.90
+
+  dry_run:
+    max_steps: 80
+    sparse_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4

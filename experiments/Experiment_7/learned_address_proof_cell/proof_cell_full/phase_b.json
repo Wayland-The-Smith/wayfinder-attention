@@ -1,0 +1,80 @@
+{
+  "phase": "B",
+  "train_t": 2048,
+  "address_index_checkpoint": "/mnt/c/Users/anike/Desktop/Experiments/RoutingAttention/RoutingAttention/experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/index_checkpoints/T2048_address_index.pt",
+  "meta": {
+    "path": "/mnt/c/Users/anike/Desktop/Experiments/RoutingAttention/RoutingAttention/experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/index_checkpoints/T2048_address_index.pt",
+    "train_context_length": 2048,
+    "dense_checkpoint": "/mnt/c/Users/anike/Desktop/Experiments/RoutingAttention/RoutingAttention/experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/checkpoints/dense_flash.pt",
+    "train_cache": "/mnt/c/Users/anike/Desktop/Experiments/RoutingAttention/RoutingAttention/experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/index_checkpoints/_address_cache_T2048/data_cache/attention_cache_train_all_layers",
+    "holdout_cache": "/mnt/c/Users/anike/Desktop/Experiments/RoutingAttention/RoutingAttention/experiments/Experiment_7/learned_address_proof_cell/proof_cell_full/index_checkpoints/_address_cache_T2048/data_cache/attention_cache_holdout_all_layers",
+    "address_steps": 10000,
+    "recall_k": 32,
+    "holdout_recall": {
+      "per_layer": {
+        "layer_0": {
+          "recall@32": 0.31058788299560547,
+          "precision@32": 0.31058788299560547,
+          "num_queries": 32768,
+          "mean_rank_true_neighbors": 0.0
+        },
+        "layer_1": {
+          "recall@32": 0.5786457061767578,
+          "precision@32": 0.5786457061767578,
+          "num_queries": 32768,
+          "mean_rank_true_neighbors": 0.0
+        },
+        "layer_2": {
+          "recall@32": 0.6699495315551758,
+          "precision@32": 0.6699495315551758,
+          "num_queries": 32768,
+          "mean_rank_true_neighbors": 0.0
+        },
+        "layer_3": {
+          "recall@32": 0.8145675659179688,
+          "precision@32": 0.8145675659179688,
+          "num_queries": 32768,
+          "mean_rank_true_neighbors": 0.0
+        }
+      },
+      "mean_recall": 0.593437671661377,
+      "eval_mode": "learned_address"
+    },
+    "skipped": false
+  },
+  "recall@128": 0.593437671661377,
+  "key_vector_recall": {
+    "per_layer": {
+      "layer_0": {
+        "recall@128": 0.48250246047973633,
+        "precision@128": 0.48250246047973633,
+        "num_queries": 32768,
+        "mean_rank_true_neighbors": 0.0
+      },
+      "layer_1": {
+        "recall@128": 0.6549258232116699,
+        "precision@128": 0.6549258232116699,
+        "num_queries": 32768,
+        "mean_rank_true_neighbors": 0.0
+      },
+      "layer_2": {
+        "recall@128": 0.6646883487701416,
+        "precision@128": 0.6646883487701416,
+        "num_queries": 32768,
+        "mean_rank_true_neighbors": 0.0
+      },
+      "layer_3": {
+        "recall@128": 0.8838098049163818,
+        "precision@128": 0.8838098049163818,
+        "num_queries": 32768,
+        "mean_rank_true_neighbors": 0.0
+      }
+    },
+    "mean_recall": 0.6714816093444824,
+    "eval_mode": "key_vector"
+  },
+  "gate": {
+    "recall_min": 0.7,
+    "passed": false
+  }
+}

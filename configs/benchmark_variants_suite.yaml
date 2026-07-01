@@ -1,0 +1,82 @@
+# Four benchmark variants @ T=2048 — dense_flash, pointer_mlp (slot) or lm_token (pointer_unique).
+
+benchmark_variants_suite:
+  train_context_length: 2048
+  n_layers: 4
+  suite_profile: full
+
+  transformer:
+    sparse_finetune_steps: 10000
+    dense_pretrain_steps: 10000
+    validate_every: 1000
+    validate_every_min: 1000
+    log_every: 500
+    lr: 3.0e-4
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+
+  slot_pointer_defaults:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [slot_pointer]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: false
+    num_distractors: 0
+    num_slot_quads: 50
+    slot_quad_placement: random
+    slot_enforce_unique_semantics: false
+    training_protocol: two_stage
+
+  slot_pointer_model_defaults:
+    output_head: pointer_mlp
+    pointer_target_mode: value_slots
+    pointer_mlp_hidden: 2100
+    vocab_size: 129
+
+  variants:
+    slot_pointer_10q:
+      description: "10 quads — CE over 10 value slots (10% random baseline)"
+      holdout_seed_offset: 101
+      long_context_benchmark:
+        benchmark_variant: slot_pointer_10q
+        num_slot_quads: 10
+      model:
+        num_pointer_slots: 10
+
+    slot_pointer_fixed_grid:
+      description: "50 quads on fixed evenly-spaced grid"
+      holdout_seed_offset: 102
+      long_context_benchmark:
+        benchmark_variant: slot_pointer_fixed_grid
+        slot_quad_placement: fixed_grid
+
+    slot_pointer_unique_semantics:
+      description: "50 quads — semantic tokens only inside quads; hay 103..128"
+      holdout_seed_offset: 103
+      long_context_benchmark:
+        benchmark_variant: slot_pointer_unique_semantics
+        slot_enforce_unique_semantics: true
+
+    pointer_unique_t2048:
+      description: "Classic L0 pointer_unique @ T=2048, 0 decoys, query-only (no answer in input)"
+      holdout_seed_offset: 104
+      long_context_benchmark:
+        benchmark_variant: pointer_unique_t2048
+        task_types: [pointer_unique]
+        synthetic_decoy_keys: 0
+        scatter_multi_needles: false
+        include_answer_in_suffix: false
+        train_label_mode: query_only_answer
+        num_slot_quads: 50
+      model:
+        output_head: lm_token
+        vocab_size: 128

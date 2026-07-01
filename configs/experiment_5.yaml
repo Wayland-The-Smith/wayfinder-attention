@@ -1,0 +1,31 @@
+# Experiment 5: MNIST routing throughput and quality across retrieval backends
+# Reuses trained routing attention from Experiment 4.
+
+experiment:
+  name: Experiment_5
+  description: "MNIST pixel-LM recall, loss, and retrieval throughput at seq_len=784."
+
+variants:
+  default:
+    retrieval:
+      method: auto
+  brute_force:
+    retrieval:
+      method: brute_force
+  faiss_hnsw:
+    retrieval:
+      method: faiss_hnsw
+
+reuse:
+  transformer_checkpoint: latest:Experiment_1
+  router_checkpoint: latest:Experiment_1
+  routing_model_checkpoint: latest:Experiment_4
+
+evaluation:
+  max_batches: 50
+  max_eval_samples: 32
+  recall_max_batches: 8
+
+success_criteria:
+  recall_at_32: 0.50
+  lm_loss_ratio_max: 1.05

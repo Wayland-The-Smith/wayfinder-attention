@@ -1,0 +1,235 @@
+# Experiment 7 — procedural long-context retrieval benchmark (NIAH suite)
+
+experiment:
+  name: Experiment_7
+  description: "Long-context retrieval benchmark across attention architectures."
+
+# Default suite profile: full (6-layer breakthrough config)
+suite:
+  default_profile: full
+
+suite_profiles:
+  fast:
+    description: "Smoke / weekend run. 2-layer trunk, T<=8192, fair three-stage."
+    fair_comparison: true
+    model:
+      n_layers: 2
+      max_seq_len: 8192
+    transformer:
+      max_steps: 2000
+      dense_pretrain_steps: 2000
+      sparse_finetune_steps: 2000
+      log_every: 200
+    data:
+      batch_size: 4
+      num_workers: 0
+    long_context_benchmark:
+      context_lengths: [8192, 4096, 2048, 1024]
+      eval_samples_per_cell: 8
+    evaluation:
+      benchmark_runs: 3
+      benchmark_warmup: 1
+    index_pretrain:
+      router_max_steps: 400
+      cache_train_batches: 16
+      cache_holdout_batches: 4
+
+  full:
+    description: "Publication-scale fair head-to-head; 6L at T<=8192 (skip 16k/32k until 8k gate passes)."
+    fair_comparison: true
+    model:
+      n_layers: 6
+      max_seq_len: 32768
+    transformer:
+      max_steps: 5000
+      dense_pretrain_steps: 5000
+      sparse_finetune_steps: 5000
+      log_every: 500
+    data:
+      batch_size: 4
+      num_workers: 0
+    long_context_benchmark:
+      context_lengths: [8192, 4096, 2048, 1024]
+      eval_samples_per_cell: 16
+    evaluation:
+      benchmark_runs: 5
+      benchmark_warmup: 2
+    index_pretrain:
+      router_max_steps: 2000
+      cache_train_batches: 32
+      cache_holdout_batches: 8
+
+data:
+  dataset: long_context
+  batch_size: 4
+  seq_len: 2048
+  num_workers: 0
+  pin_memory: true
+  prefetch_batches: 2
+  prefetch_factor: 4
+
+# Official eval uses full holdout; mid-train uses stratified subsample (when total_samples set).
+holdout:
+  total_samples: 300
+  mid_train_samples_per_cell: 10
+
+long_context_benchmark:
+  context_lengths: [8192, 4096, 2048, 1024]
+  needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+  task_types:
+    - exact_retrieval
+    - key_value
+    - multiple_needles
+  secondary_task_types:
+    - distractor
+  haystack_modes:
+    - random_tokens
+    - random_sentences
+    - structured_records
+  train_label_mode: answer_only
+  train_task_sampling: retrieval_heavy
+  scatter_multi_needles: true
+  answer_loss_weight: 8.0
+  suffix_depth_min: 0.10
+  suffix_depth_max: 0.90
+  min_haystack_side_chars: 128
+  generation_max_attempts: 16
+  max_answer_chars: 64
+  context_curriculum: []
+  benchmark_version: 7
+  eval_samples_per_cell: 8
+  seed: 45
+  holdout_seed: 1000042
+  shared_init: false
+  training_protocol: two_stage
+  eval_grid_workers: 0
+
+model:
+  max_seq_len: 8192
+  num_digit_classes: 0
+  # lm_token (default): causal CE on answer tokens. pointer_index: query-conditioned index CE.
+  output_head: lm_token
+
+training:
+  cudnn_deterministic: true
+  cudnn_benchmark: false
+
+transformer:
+  max_steps: 5000
+  dense_pretrain_steps: 5000
+  sparse_finetune_steps: 5000
+  lr: 3.0e-4
+  lr_warmup_steps: 500
+  log_every: 500
+  validate_every: 0
+  validate_every_min: 5000
+
+# Dense-only calibration (scripts/calibrate_dense_niah.py) — does not run the variant suite.
+dense_calibration:
+  train_context_length: 8192
+  # Optional T curriculum (empty = fixed T). Example:
+  # context_curriculum:
+  #   - {until_step: 25000, context_length: 2048}
+  #   - {until_step: 60000, context_length: 4096}
+  #   - {until_step: 100000, context_length: 8192}
+  max_steps: 100000
+  validate_every: 1000
+  validate_every_min: 500
+  log_every: 5
+  live_metrics: true
+  # Mid-train: 2 samples/cell (30 cells → ~60 forwards) vs full 16/cell (~480).
+  mid_train_samples_per_cell: 4
+  min_delta_pp: 0.005
+  target_accuracy: 0.90
+  restore_best_checkpoint: true
+  min_recommended_steps: 1000
+
+# Stage A.5: train routing_asymmetric router on NIAH dense teacher (per T)
+index_pretrain:
+  enabled: true
+  router_max_steps: 2000
+  cache_train_batches: 32
+  cache_holdout_batches: 8
+  dry_run_router_steps: 20
+  dry_run_cache_train_batches: 4
+  dry_run_cache_holdout_batches: 2
+
+router:
+  mode: per_layer
+  similarity: asymmetric
+  routing_dim: 32
+  top_k: 32
+  loss_type: infonce
+  max_steps: 2000
+  lr: 1.0e-3
+  eval_every: 0
+  batch_size: 4
+
+data_collection:
+  all_layers: true
+  train_max_batches: 32
+  holdout_max_batches: 8
+  batch_size: 2
+  cache_dtype: float16
+
+routing_attention:
+  fair_finetune: true
+
+evaluation:
+  benchmark_runs: 5
+  benchmark_warmup: 2
+  latency_benchmark_length: 8192
+
+variants:
+  dense_flash:
+    model:
+      attention_type: dense_flash
+  linear:
+    model:
+      attention_type: linear
+  local_window64:
+    model:
+      attention_type: local
+    router:
+      local_window: 64
+    routing_attention:
+      local_window: 64
+  local_window256:
+    model:
+      attention_type: local
+    router:
+      local_window: 256
+    routing_attention:
+      local_window: 256
+  routing_asymmetric:
+    router:
+      similarity: asymmetric
+      top_k: 32
+    routing_attention:
+      freeze_router: true
+  learned_address_k32:
+    model:
+      attention_type: learned_address
+    learned_address:
+      address_dim: 32
+      similarity: asymmetric
+    routing_attention:
+      freeze_addresses: false
+  key_vector_k32:
+    model:
+      attention_type: key_vector
+
+retrieval:
+  method: fused_causal
+  apply_to_key_vector: true
+  use_fused_sparse: true
+
+success_criteria:
+  min_primary_gate_accuracy: 0.50
+  min_overall_accuracy: 0.50
+  routing_beats_local_window_pp: 0.15
+  max_dense_gap_pp: 0.10
+  routing_variant: routing_asymmetric
+  local_baseline: local_window256
+  dense_reference: dense_flash
+  min_context_length: 8192

@@ -1,0 +1,95 @@
+# ptr_chain @ T=2048 — gradual scatter curriculum + hop/distractor ramp.
+#
+# Scatter: needles start in chars 0–50, expand by +50 every 750 steps until full haystack (~2034).
+# Task difficulty: 1-hop/0-dist during scatter ramp, then hop/distractor ramp after scatter is full.
+# Phase-aligned eval logs [phase] accuracy matching current train settings; [val] is fixed hard holdout.
+#
+# Run:
+#   python run_routing_arena_suite.py --config configs/routing_arena_ptr_chain_t2048_scatter_curriculum.yaml \
+#     --variants dense_flash --output-dir experiments/Experiment_7/routing_arena_ptr_chain_t2048_scatter_curriculum
+
+routing_arena:
+  description: "ptr_chain scatter curriculum @ T=2048 — dense_flash 50k steps"
+  train_context_length: 2048
+  suite_profile: full
+  n_layers: 6
+
+  variants:
+    - dense_flash
+
+  dense_finetune_on_task: true
+  dense_gate_min: 0
+
+  holdout:
+    total_samples: 300
+    mid_train_samples_per_cell: 10
+
+  dense_checkpoint: null
+
+  long_context_benchmark:
+    benchmark_family: synthetic
+    context_lengths: [2048]
+    task_types: [ptr_chain]
+    needle_depths: [0.10, 0.25, 0.50, 0.75, 0.90]
+    suffix_placement: at_end
+    scatter_multi_needles: true
+    scatter_placement_min: 0
+    scatter_placement_max: null
+    # Compact spec → expanded to ~41 tiers (0–50, +50, until full @ step ~30750).
+    needle_scatter_curriculum_spec:
+      start_max: 50
+      step_chars: 50
+      steps_per_tier: 750
+      haystack_len: 2034
+    # Final holdout / eval target difficulty:
+    num_distractors: 2
+    synthetic_hop_count: 2
+    synthetic_hop_count_min: 2
+    synthetic_hop_count_max: 2
+    synthetic_decoy_addrs: 2
+    synthetic_fake_ptrs: 0
+    training_protocol: two_stage
+    synthetic_task_curriculum:
+      # Easy hops while scatter expands (until full haystack ~step 30750).
+      - until_step: 30750
+        synthetic_hop_count: 1
+        num_distractors: 0
+      - until_step: 35000
+        synthetic_hop_count: 1
+        num_distractors: 1
+      - until_step: 45000
+        synthetic_hop_count: 2
+        num_distractors: 1
+      - until_step: 50000
+        synthetic_hop_count: 2
+        num_distractors: 2
+
+  transformer:
+    sparse_finetune_steps: 50000
+    validate_every: 500
+    validate_every_min: 500
+    log_every: 250
+    lr: 3.0e-4
+
+  routing_attention:
+    fair_finetune: true
+
+  dense_calibration:
+    live_metrics: true
+    early_stop: false
+    restore_best_checkpoint: true
+    eval_use_full_holdout: false
+    phase_aligned_eval: true
+    phase_aligned_samples: 32
+
+  dry_run:
+    sparse_finetune_steps: 80
+    validate_every: 20
+    log_every: 10
+    mid_train_samples_per_cell: 4
+    # Fast scatter ramp for smoke test: +50 chars every 25 steps (transitions at 25, 50, 75…).
+    needle_scatter_curriculum_spec:
+      start_max: 50
+      step_chars: 50
+      steps_per_tier: 25
+      haystack_len: 250
