@@ -1,10 +1,12 @@
 # Wayfinder Attention
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21087516.svg)](https://doi.org/10.5281/zenodo.21087516)
+
 *Attention as learned search: separate address-based retrieval from QKV aggregation.*
 
-Official code release for [**Wayfinder Attention: Attention as Learned Search**](wayfinder_attention_paper_v0_4.tex) — a proof-cell study of learned-address sparse attention that distills dense teacher neighborhoods into a top-$K$ token index, then runs ordinary softmax over retrieved QKV.
+**Paper (preprint):** [*Wayfinder Attention: Attention as Learned Search*](https://doi.org/10.5281/zenodo.21087516) — [Zenodo record](https://zenodo.org/records/21087516) · [PDF](https://zenodo.org/records/21087516/files/Wayfinder%20Attention.pdf)
 
-**Paper (Zenodo):** [10.5281/zenodo.21087516](https://doi.org/10.5281/zenodo.21087516)
+Official code for the proof-cell study: learned-address sparse attention that distills dense teacher neighborhoods into a top-$K$ token index, then runs ordinary softmax over retrieved QKV. LaTeX source: [`wayfinder_attention_paper_v0_4.tex`](wayfinder_attention_paper_v0_4.tex).
 
 ## Overview
 
@@ -147,4 +149,5 @@ Aleksandr Anikevich — [aleksandranikevich2@gmail.com](mailto:aleksandranikevic
 
 ## License
 
-See the Zenodo record for the paper license. Add a `LICENSE` file here if you choose a specific open-source license for the code (MIT/Apache-2.0 are common choices for research code releases).
+- **Code (this repository):** [Apache-2.0](LICENSE)
+- **Paper (Zenodo preprint):** [CC BY 4.0](https://doi.org/10.5281/zenodo.21087516)
